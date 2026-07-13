@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JJK OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #060611;
+      --panel: rgba(9, 10, 24, 0.82);
+      --panel-strong: rgba(16, 18, 33, 0.92);
+      --text: #f5ebff;
+      --muted: #c7b7ff;
+      --accent: #ffcf4a;
+      --accent-2: #6bc5ff;
+      --border: rgba(255, 255, 255, 0.16);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Oswald', sans-serif;
+      color: var(--text);
+      background: var(--bg) url('assets/welcome.png') center center / cover fixed no-repeat;
+      position: relative;
+      user-select: none;
+    }
+
+    video#desktopVideo {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      pointer-events: none;
+      filter: brightness(0.75) contrast(1.05);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(6, 6, 17, 0.8), rgba(25, 6, 44, 0.7));
+      z-index: -1;
+    }
+
+    @keyframes popup {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .window {
+      position: absolute;
+      width: 320px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+      color: var(--text);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      cursor: grab;
+      margin-bottom: 10px;
+    }
+
+    .closebtn {
+      width: 14px;
+      height: 14px;
+      background: linear-gradient(135deg, #ff6b6b, #ff3d3d);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(255, 90, 90, 0.4);
+    }
+
+    .app-btn {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 4px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      color: var(--text);
+      transition: 0.2s ease;
+    }
+
+    .app-btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .window h1 {
+      margin: 8px 0 8px;
+      font-size: 24px;
+      color: var(--accent);
+      letter-spacing: 1px;
+    }
+
+    .window p, .window li {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .window input, .window button {
+      font: inherit;
+    }
+
+    .video-window {
+      width: 420px;
+      height: 320px;
+      padding: 10px;
+    }
+
+    .video-window video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 14px;
+      background: #000;
+    }
+
+    .window input {
+      width: 70%;
+      padding: 8px;
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+    }
+
+    .window button {
+      padding: 8px 10px;
+      background: linear-gradient(135deg, var(--accent), #ff9e00);
+      color: #1a1400;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      margin-left: 6px;
+    }
+
+    #taskList {
+      padding-left: 18px;
+      margin-top: 12px;
+    }
+
+    #taskList li {
+      margin: 6px 0;
+      cursor: pointer;
+    }
+
+    #terminal {
+      width: 700px;
+      height: 420px;
+    }
+
+    #terminalScreen {
+      background: rgba(2, 4, 12, 0.9);
+      height: 340px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      box-sizing: border-box;
+      padding: 15px;
+      font-family: Consolas, monospace;
+      font-size: 16px;
+      color: #ddd;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    #terminalInput {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: white;
+      font: inherit;
+      flex: 1;
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .music-window {
+      width: 390px;
+      padding: 12px;
+    }
+
+    .music-window audio {
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .music-controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .control-btn {
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.12);
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .control-btn.active {
+      background: linear-gradient(135deg, var(--accent), #ff9e00);
+      color: #1a1400;
+      font-weight: 700;
+    }
+
+    .music-tip {
+      display: none;
+      margin-top: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(107, 197, 255, 0.16);
+      color: #e2f6ff;
+      border: 1px solid rgba(107, 197, 255, 0.25);
+      font-size: 14px;
+    }
+
+    .media-status {
+      margin-top: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--muted);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 14px;
+    }
+
+    .music-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .music-item {
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.08);
+      cursor: pointer;
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .music-item.active {
+      background: rgba(255, 207, 74, 0.22);
+      border-color: rgba(255, 207, 74, 0.45);
+    }
+
+    .music-item:hover {
+      background: rgba(255,255,255,0.14);
+    }
+  </style>
+</head>
+<body>
+  <video id="desktopVideo" src="assets/gojo-fixed.mp4" autoplay loop muted playsinline preload="auto">
+    <source src="assets/gojo-fixed.mp4" type="video/mp4" />
+  </video>
+  <div id="bootScreen" style="position:fixed;inset:0;background:radial-gradient(circle at top, rgba(255,207,74,0.2), rgba(0,0,0,0.95));display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:9999;">
+    <h1 style="font-size:44px;margin:0;color:#fff8d9;letter-spacing:3px;">JJK OS</h1>
+    <p style="margin:8px 0 18px;color:#e8d8ff;">Launching the domain...</p>
+    <div style="width:240px;height:8px;background:rgba(255,255,255,0.14);border-radius:99px;overflow:hidden;border:1px solid rgba(255,255,255,0.12);">
+      <div id="bootBar" style="height:100%;width:0;background:linear-gradient(90deg,#ffcf4a,#6bc5ff)"></div>
+    </div>
+    <button id="startBtn" style="margin-top:18px;padding:10px 18px;border:none;border-radius:999px;background:linear-gradient(135deg,#ffcf4a,#6bc5ff);color:#130d00;font-weight:700;cursor:pointer;">Start Experience</button>
+  </div>
+
+  <div style="position:fixed;top:0;left:0;width:100%;height:52px;background:rgba(8,8,8,0.72);backdrop-filter:blur(18px);display:flex;align-items:center;padding:0 18px;box-sizing:border-box;gap:10px;z-index:100;">
+    <div id="welcomeopen" class="app-btn">Welcome</div>
+    <div id="aboutopen" class="app-btn">a cool edit</div>
+    <div id="todoopen" class="app-btn">Todo</div>
+    <div id="weatheropen" class="app-btn">Weather</div>
+    <div id="musicopen" class="app-btn">Songs</div>
+    <div id="terminalopen" class="app-btn">Terminal</div>
+    <div id="timeElement" style="margin-left:auto;background:rgba(255,255,255,0.12);padding:4px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.16);"></div>
+  </div>
+
+  <div id="welcome" class="window" style="top:140px;left:140px;">
+    <div id="welcomeheader" class="header">
+      <div id="welcomeclose" class="closebtn"></div>
+    </div>
+    <img src="assets/welcome.png" width="56" height="56" style="border-radius:50%;border:2px solid rgba(255,255,255,0.2);">
+    <h1>JJK OS</h1>
+    <p>Welcome to the Special Grade desktop.<br>A sleek interface inspired by the world of Jujutsu Kaisen.</p>
+  </div>
+
+  <div id="about" class="window video-window" style="top:220px;left:360px;display:none;">
+    <div id="aboutheader" class="header">
+      <div id="aboutclose" class="closebtn"></div>
+    </div>
+    <video id="introVideo" src="assets/intro.mp4" controls autoplay muted loop playsinline preload="auto">
+      <source src="assets/intro.mp4" type="video/mp4" />
+    </video>
+  </div>
+
+  <div id="todo" class="window" style="top:300px;left:620px;display:none;">
+    <div id="todoheader" class="header">
+      <div id="todoclose" class="closebtn"></div>
+    </div>
+    <h1>Todo</h1>
+    <input id="taskInput" placeholder="New task..." />
+    <button onclick="addTask()">Add</button>
+    <ul id="taskList"></ul>
+  </div>
+
+  <div id="weather" class="window" style="top:250px;left:900px;display:none;">
+    <div id="weatherheader" class="header">
+      <div id="weatherclose" class="closebtn"></div>
+    </div>
+    <h1>Weather</h1>
+    <input id="cityInput" placeholder="Enter city..." />
+    <button onclick="getWeather()">Check</button>
+    <div id="weatherResult" style="margin-top:15px"></div>
+  </div>
+
+  <div id="music" class="window music-window" style="top:260px;left:760px;display:none;">
+    <div id="musicheader" class="header">
+      <div id="musicclose" class="closebtn"></div>
+    </div>
+    <h1>Songs</h1>
+    <p>Pick a track to listen. (try watching the cool edit with the track running :)).</p>
+    <div id="musicTip" class="music-tip">Tip: Play this with the video for a cinematic edit.</div>
+    <div class="music-controls">
+      <button class="control-btn" id="shuffleBtn" onclick="toggleShuffle()">Shuffle</button>
+      <button class="control-btn" id="repeatBtn" onclick="toggleRepeat()">Repeat</button>
+      <button class="control-btn" onclick="stopMusic()">Stop</button>
+    </div>
+    <div id="nowPlaying" style="margin-top:10px;color:var(--accent);">Nothing playing</div>
+    <div id="mediaStatus" class="media-status">Tap the page once to enable audio and video playback.</div>
+    <div id="musicList" class="music-list"></div>
+    <audio id="musicPlayer" controls preload="metadata"></audio>
+  </div>
+
+  <div id="terminal" class="window" style="top:180px;left:450px;display:none;">
+    <div id="terminalheader" class="header">
+      <div id="terminalclose" class="closebtn"></div>
+    </div>
+
+    <div id="terminalScreen">
+      <div id="terminalOutput" style="white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;">
+        JJK OS Terminal
+        Last login: Today
+      </div>
+      <div style="display:flex;align-items:center;width:100%;">
+        <span style="color:#61afef;">root@gojo</span>
+        <span style="color:#fff;">:~#&nbsp;</span>
+        <input id="terminalInput" autocomplete="off" spellcheck="false" />
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function updateTime() {
+      const now = new Date();
+      const date = now.toLocaleDateString('en-IN');
+      const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('timeElement').textContent = date + ' ' + time;
+    }
+
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    const bootScreen = document.getElementById('bootScreen');
+    const bootBar = document.getElementById('bootBar');
+    const startBtn = document.getElementById('startBtn');
+    const desktopVideo = document.getElementById('desktopVideo');
+    const introVideo = document.getElementById('introVideo');
+    const taskInput = document.getElementById('taskInput');
+    const taskList = document.getElementById('taskList');
+    const cityInput = document.getElementById('cityInput');
+    const weatherResult = document.getElementById('weatherResult');
+    let progress = 0;
+    const b = setInterval(() => {
+      progress += 2;
+      bootBar.style.width = progress + '%';
+      if (progress >= 100) {
+        clearInterval(b);
+        bootScreen.style.display = 'none';
+      }
+    }, 40);
+
+    function setMediaStatus(message) {
+      const statusEl = document.getElementById('mediaStatus');
+      if (statusEl) statusEl.textContent = message;
+    }
+
+    function tryPlayVideo(video) {
+      if (!video) return;
+      const playPromise = video.play();
+      if (playPromise && typeof playPromise.then === 'function') {
+        playPromise.then(() => {
+          setMediaStatus('Media playback enabled.');
+        }).catch(() => {
+          setMediaStatus('Click Start Experience to begin media.');
+        });
+      }
+    }
+
+    function tryPlayAudio(audio) {
+      if (!audio) return;
+      const playPromise = audio.play();
+      if (playPromise && typeof playPromise.then === 'function') {
+        playPromise.then(() => {
+          setMediaStatus('Audio playback enabled.');
+        }).catch(() => {
+          setMediaStatus('Click Start Experience to begin audio.');
+        });
+      }
+    }
+
+    function resumeMediaPlayback() {
+      tryPlayVideo(desktopVideo);
+      tryPlayVideo(introVideo);
+      tryPlayAudio(document.getElementById('musicPlayer'));
+    }
+
+    function startExperience() {
+      bootScreen.style.display = 'none';
+      resumeMediaPlayback();
+      setTimeout(resumeMediaPlayback, 300);
+      setMediaStatus('Experience started.');
+    }
+
+    if (startBtn) {
+      startBtn.addEventListener('click', startExperience);
+    }
+
+    window.addEventListener('load', () => {
+      setMediaStatus('Click Start Experience to begin.');
+    });
+
+    document.querySelectorAll('.window').forEach(w => {
+      w.style.position = 'absolute';
+    });
+
+    function openWindow(id) {
+      const w = document.getElementById(id);
+      w.style.display = 'block';
+      w.style.animation = 'popup .2s ease';
+      if (id === 'about') {
+        setTimeout(() => tryPlayVideo(introVideo), 50);
+      }
+      if (id === 'music') {
+        showMusicTip();
+        const introWindow = document.getElementById('about');
+        if (introWindow) {
+          introWindow.style.display = 'block';
+          introWindow.style.animation = 'popup .2s ease';
+          setTimeout(() => tryPlayVideo(introVideo), 50);
+        }
+      }
+      if (id === 'terminal') {
+        document.getElementById('terminalInput').focus();
+      }
+    }
+
+    function closeWindow(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    ['welcome', 'about', 'todo', 'weather', 'music', 'terminal'].forEach(id => {
+      document.getElementById(id + 'open').onclick = () => openWindow(id);
+      document.getElementById(id + 'close').onclick = () => closeWindow(id);
+      drag(document.getElementById(id));
+    });
+
+    function drag(el) {
+      let x = 0, y = 0, a = 0, b = 0;
+      el.querySelector('.header').onmousedown = e => {
+        e.preventDefault();
+        a = e.clientX;
+        b = e.clientY;
+        document.onmousemove = m;
+        document.onmouseup = () => { document.onmousemove = null; };
+      };
+      function m(e) {
+        x = a - e.clientX;
+        y = b - e.clientY;
+        a = e.clientX;
+        b = e.clientY;
+        el.style.top = (el.offsetTop - y) + 'px';
+        el.style.left = (el.offsetLeft - x) + 'px';
+      }
+    }
+
+    function addTask() {
+      const i = taskInput;
+      if (!i.value.trim()) return;
+      const li = document.createElement('li');
+      li.textContent = i.value;
+      li.onclick = () => {
+        li.style.textDecoration = 'line-through';
+        li.style.opacity = '0.6';
+      };
+      taskList.appendChild(li);
+      i.value = '';
+    }
+
+    async function getWeather() {
+      if (!cityInput.value.trim()) return;
+      weatherResult.innerHTML = 'Loading...';
+      try {
+        const d = await (await fetch('https://wttr.in/' + cityInput.value + '?format=j1')).json();
+        const c = d.current_condition[0];
+        weatherResult.innerHTML = `City: ${cityInput.value}<br>Temp: ${c.temp_C}°C<br>Condition: ${c.weatherDesc[0].value}<br>Humidity: ${c.humidity}%<br>Wind: ${c.windspeedKmph} km/h`;
+      } catch {
+        weatherResult.textContent = 'Could not fetch weather.';
+      }
+    }
+
+    const songs = [
+      { name: 'Track 1', src: 'assets/song1.mp3' },
+      { name: 'Track 2', src: 'assets/song2.mp3' },
+      { name: 'Track 3', src: 'assets/song3.mp3' },
+      { name: 'Track 4', src: 'assets/song4.mp3' },
+      { name: 'Track 5', src: 'assets/song5.mp3' },
+      { name: 'Track 6', src: 'assets/song6.mp3' }
+    ];
+
+    const musicPlayer = document.getElementById('musicPlayer');
+    const musicList = document.getElementById('musicList');
+    const nowPlaying = document.getElementById('nowPlaying');
+    const shuffleBtn = document.getElementById('shuffleBtn');
+    const repeatBtn = document.getElementById('repeatBtn');
+    const musicTip = document.getElementById('musicTip');
+    let shuffleEnabled = false;
+    let repeatEnabled = false;
+    let currentTrackIndex = -1;
+
+    function renderMusicList() {
+      musicList.innerHTML = songs.map((song, index) => `
+        <div class="music-item ${index === currentTrackIndex ? 'active' : ''}" data-index="${index}">${index + 1}. ${song.name}</div>
+      `).join('');
+
+      musicList.querySelectorAll('.music-item').forEach(item => {
+        item.onclick = () => playTrack(Number(item.getAttribute('data-index')));
+      });
+    }
+
+    function playTrack(index) {
+      if (index < 0 || index >= songs.length) return;
+      currentTrackIndex = index;
+      renderMusicList();
+      musicPlayer.src = songs[index].src;
+      musicPlayer.load();
+      const playPromise = musicPlayer.play();
+      if (playPromise && typeof playPromise.then === 'function') {
+        playPromise.then(() => {
+          setMediaStatus('Audio ready.');
+        }).catch(() => {
+          setMediaStatus('Audio blocked until you tap the page.');
+        });
+      }
+      nowPlaying.textContent = 'Now playing: ' + songs[index].name;
+    }
+
+    function playNextTrack() {
+      if (shuffleEnabled) {
+        let nextIndex = Math.floor(Math.random() * songs.length);
+        while (nextIndex === currentTrackIndex && songs.length > 1) {
+          nextIndex = Math.floor(Math.random() * songs.length);
+        }
+        playTrack(nextIndex);
+      } else {
+        const nextIndex = currentTrackIndex + 1 >= songs.length ? 0 : currentTrackIndex + 1;
+        playTrack(nextIndex);
+      }
+    }
+
+    function toggleShuffle() {
+      shuffleEnabled = !shuffleEnabled;
+      shuffleBtn.classList.toggle('active', shuffleEnabled);
+      nowPlaying.textContent = shuffleEnabled ? 'Shuffle enabled' : 'Shuffle disabled';
+    }
+
+    function toggleRepeat() {
+      repeatEnabled = !repeatEnabled;
+      repeatBtn.classList.toggle('active', repeatEnabled);
+      musicPlayer.loop = repeatEnabled;
+      nowPlaying.textContent = repeatEnabled ? 'Repeat enabled' : 'Repeat disabled';
+    }
+
+    function stopMusic() {
+      musicPlayer.pause();
+      musicPlayer.currentTime = 0;
+      musicPlayer.src = '';
+      musicPlayer.load();
+      currentTrackIndex = -1;
+      renderMusicList();
+      nowPlaying.textContent = 'Music stopped';
+      setMediaStatus('Music stopped.');
+    }
+
+    function showMusicTip() {
+      musicTip.style.display = 'block';
+      clearTimeout(showMusicTip.timeout);
+      showMusicTip.timeout = setTimeout(() => {
+        musicTip.style.display = 'none';
+      }, 3000);
+    }
+
+    musicPlayer.addEventListener('ended', () => {
+      if (repeatEnabled) {
+        musicPlayer.currentTime = 0;
+        musicPlayer.play().catch(() => {});
+      } else {
+        playNextTrack();
+      }
+    });
+
+    renderMusicList();
+
+    document.getElementById('terminalScreen').onclick = () => {
+      document.getElementById('terminalInput').focus();
+    };
+
+    const terminalInput = document.getElementById('terminalInput');
+    const terminalOutput = document.getElementById('terminalOutput');
+    const terminalScreen = document.getElementById('terminalScreen');
+    terminalInput.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      const cmd = this.value.trim();
+      terminalOutput.innerHTML += `<div><span style="color:#61afef;">root@gojo</span>:~# ${cmd}</div>`;
+      executeCommand(cmd);
+      this.value = '';
+      terminalScreen.scrollTop = terminalScreen.scrollHeight;
+    });
+
+    function print(text) {
+      terminalOutput.innerHTML += `<div>${text}</div>`;
+      terminalScreen.scrollTop = terminalScreen.scrollHeight;
+    }
+
+    function executeCommand(cmd) {
+      const args = cmd.toLowerCase().trim().split(/\s+/);
+      const action = args[0];
+
+      switch (action) {
+        case 'help':
+          print('help');
+          print('clear');
+          print('date');
+          print('whoami');
+          print('music');
+          print('play <song|number>');
+          print('shuffle');
+          print('repeat');
+          print('stop');
+          print('list');
+          break;
+        case 'clear':
+          terminalOutput.innerHTML = '';
+          break;
+        case 'date':
+          print(new Date().toString());
+          break;
+        case 'whoami':
+          print('root');
+          break;
+        case 'music':
+          openWindow('music');
+          print('Music player opened.');
+          break;
+        case 'play':
+          if (!args[1]) {
+            print('Usage: play 1-6 or play song6');
+            break;
+          }
+          const token = args[1];
+          let parsedIndex = Number(token);
+          if (Number.isNaN(parsedIndex)) {
+            const numberPart = token.replace(/song/i, '');
+            parsedIndex = Number(numberPart);
+          }
+          if (!Number.isNaN(parsedIndex) && parsedIndex >= 1 && parsedIndex <= songs.length) {
+            playTrack(parsedIndex - 1);
+            print(`Playing ${songs[parsedIndex - 1].name}`);
+          } else {
+            print('Song not found. Try play 1 or play song6');
+          }
+          break;
+        case 'shuffle':
+          toggleShuffle();
+          print(shuffleEnabled ? 'Shuffle enabled' : 'Shuffle disabled');
+          break;
+        case 'repeat':
+          toggleRepeat();
+          print(repeatEnabled ? 'Repeat enabled' : 'Repeat disabled');
+          break;
+        case 'stop':
+          stopMusic();
+          break;
+        case 'list':
+          songs.forEach((song, index) => print(`${index + 1}. ${song.name}`));
+          break;
+        default:
+          print('Command not found');
+      }
+    }
+  </script>
+</body>
+</html>
