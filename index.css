@@ -1,0 +1,222 @@
+  /* colors n stuff, dont ask me why i picked purple lol */
+  :root {
+    --bg: #060611;
+    --panel: rgba(9, 10, 24, 0.82);
+    --panel-strong: rgba(16, 18, 33, .92);
+    --text: #f5ebff;
+    --muted: #c7b7ff;
+    --accent: #ffcf4a;
+    --accent-2: #6bc5ff;
+    --border: rgba(255,255,255,0.16);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Oswald', sans-serif;
+    color: var(--text);
+    background: var(--bg) url('assets/welcome.png') center center / cover fixed no-repeat;
+    position: relative;
+    user-select: none;
+  }
+
+  video#desktopVideo{
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    pointer-events: none;
+    filter: brightness(.75) contrast(1.05); /* gojo vid was too bright otherwise */
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(6,6,17,.8), rgba(25,6,44,.7));
+    z-index: -1;
+  }
+
+  @keyframes popup {
+    from {opacity: 0; transform: scale(.95);}
+    to {opacity: 1; transform: scale(1);}
+  }
+
+  .window {
+    position: absolute;
+    width: 320px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 14px;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 18px 48px rgba(0,0,0,.45);
+    color: var(--text);
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    cursor: grab;
+    margin-bottom: 10px;
+  }
+
+  .closebtn {
+    width: 14px;
+    height: 14px;
+    background: linear-gradient(135deg, #ff6b6b, #ff3d3d);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255,90,90,.4);
+  }
+
+  .app-btn {
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.15);
+    padding: 4px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--text);
+    transition: .2s ease;
+  }
+  .app-btn:hover {
+    transform: translateY(-1px);
+    background: rgba(255,255,255,.2);
+  }
+
+  .window h1 {
+    margin: 8px 0 8px;
+    font-size: 24px;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+
+  .window p, .window li {
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .window input, .window button { font: inherit; }
+
+  .video-window { width: 420px; height: 320px; padding: 10px; }
+  .video-window video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 14px;
+    background: #000;
+  }
+
+  .window input {
+    width: 70%;
+    padding: 8px;
+    background: rgba(255,255,255,.08);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 10px;
+  }
+
+  .window button {
+    padding: 8px 10px;
+    background: linear-gradient(135deg, var(--accent), #ff9e00);
+    color: #1a1400;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    margin-left: 6px;
+  }
+
+  #taskList { padding-left: 18px; margin-top: 12px; }
+  #taskList li { margin: 6px 0; cursor: pointer; }
+
+  #terminal { width: 700px; height: 420px; }
+  #terminalScreen {
+    background: rgba(2,4,12,.9);
+    height: 340px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    padding: 15px;
+    font-family: Consolas, monospace;
+    font-size: 16px;
+    color: #ddd;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.08);
+  }
+  #terminalInput {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font: inherit;
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .music-window { width: 390px; padding: 12px; }
+  .music-window audio { width: 100%; margin-top: 8px; }
+
+  .music-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .control-btn {
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.08);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,.12);
+    cursor: pointer;
+    font: inherit;
+  }
+  .control-btn.active {
+    background: linear-gradient(135deg, var(--accent), #ff9e00);
+    color: #1a1400;
+    font-weight: 700;
+  }
+
+  .music-tip {
+    display: none;
+    margin-top: 8px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(107,197,255,.16);
+    color: #e2f6ff;
+    border: 1px solid rgba(107,197,255,.25);
+    font-size: 14px;
+  }
+
+  .media-status {
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.08);
+    color: var(--muted);
+    border: 1px solid rgba(255,255,255,.12);
+    font-size: 14px;
+  }
+
+  .music-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  .music-item {
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.08);
+    cursor: pointer;
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,.1);
+  }
+  .music-item.active {
+    background: rgba(255,207,74,.22);
+    border-color: rgba(255,207,74,.45);
+  }
+  .music-item:hover { background: rgba(255,255,255,.14); }
